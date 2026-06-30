@@ -17,15 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
-      - name: Install Jaspr CLI
+      - name: Activate Jaspr CLI
         run: dart pub global activate jaspr_cli
 
-      - name: Build
+      - name: Build website
         run: jaspr build
 
       - name: Upload Pages artifact
@@ -34,13 +37,12 @@ jobs:
           path: build/jaspr
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    needs: build
-
-    runs-on: ubuntu-latest
 
     steps:
       - id: deployment
